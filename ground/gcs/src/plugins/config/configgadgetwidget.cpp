@@ -35,7 +35,6 @@
 #include "configautotunewidget.h"
 #include "configcamerastabilizationwidget.h"
 #include "configtxpidwidget.h"
-#include "config_pro_hw_widget.h"
 #include "config_cc_hw_widget.h"
 #include "configpipxtremewidget.h"
 #include "configrevowidget.h"
@@ -140,17 +139,17 @@ ConfigGadgetWidget::ConfigGadgetWidget(QWidget *parent) : QWidget(parent)
 
     // Connect to the PipXStatus object updates
     UAVObjectManager *objManager = pm->getObject<UAVObjectManager>();
-    pipxStatusObj = dynamic_cast<UAVDataObject*>(objManager->getObject("PipXStatus"));
-    if (pipxStatusObj != NULL ) {
-        connect(pipxStatusObj, SIGNAL(objectUpdated(UAVObject*)), this, SLOT(updatePipXStatus(UAVObject*)));
+    oplinkStatusObj = dynamic_cast<UAVDataObject*>(objManager->getObject("OPLinkStatus"));
+    if (oplinkStatusObj != NULL ) {
+        connect(oplinkStatusObj, SIGNAL(objectUpdated(UAVObject*)), this, SLOT(updateOPLinkStatus(UAVObject*)));
     } else {
-        qDebug() << "Error: Object is unknown (PipXStatus).";
+	qDebug() << "Error: Object is unknown (OPLinkStatus).";
     }
 
-    // Create the timer that is used to timeout the connection to the PipX.
-    pipxTimeout = new QTimer(this);
-    connect(pipxTimeout, SIGNAL(timeout()),this,SLOT(onPipxtremeDisconnect()));
-    pipxConnected = false;
+    // Create the timer that is used to timeout the connection to the OPLink.
+    oplinkTimeout = new QTimer(this);
+    connect(oplinkTimeout, SIGNAL(timeout()), this, SLOT(onOPLinkDisconnect()));
+    oplinkConnected = false;
 }
 
 ConfigGadgetWidget::~ConfigGadgetWidget()
@@ -235,7 +234,7 @@ void ConfigGadgetWidget::onAutopilotConnect() {
             icon = new QIcon();
             icon->addFile(":/configgadget/images/hardware_normal.png", QSize(), QIcon::Normal, QIcon::Off);
             icon->addFile(":/configgadget/images/hardware_selected.png", QSize(), QIcon::Normal, QIcon::On);
-            qwd = new ConfigProHWWidget(this);
+            qwd = new DefaultHwSettingsWidget(this);
             ftw->insertTab(ConfigGadgetWidget::hardware, qwd, *icon, QString("Hardware"));
             ftw->setCurrentIndex(ConfigGadgetWidget::hardware);
         } else {
@@ -268,29 +267,29 @@ void ConfigGadgetWidget::tabAboutToChange(int i, bool * proceed)
 }
 
 /*!
-  \brief Called by updates to @PipXStatus
+  \brief Called by updates to @OPLinkStatus
   */
-void ConfigGadgetWidget::updatePipXStatus(UAVObject *)
+void ConfigGadgetWidget::updateOPLinkStatus(UAVObject *)
 {
     // Restart the disconnection timer.
-    pipxTimeout->start(5000);
-    if (!pipxConnected)
+    oplinkTimeout->start(5000);
+    if (!oplinkConnected)
     {
-        qDebug() << "ConfigGadgetWidget onPipxtremeConnect";
+        qDebug() << "ConfigGadgetWidget onOPLinkConnect";
 
         QIcon *icon = new QIcon();
         icon->addFile(":/configgadget/images/pipx-normal.png", QSize(), QIcon::Normal, QIcon::Off);
         icon->addFile(":/configgadget/images/pipx-selected.png", QSize(), QIcon::Selected, QIcon::Off);
 
         QWidget *qwd = new ConfigPipXtremeWidget(this);
-        ftw->insertTab(ConfigGadgetWidget::pipxtreme, qwd, *icon, QString("PipXtreme"));
-        pipxConnected = true;
+        ftw->insertTab(ConfigGadgetWidget::oplink, qwd, *icon, QString("OPLink"));
+        oplinkConnected = true;
     }
 }
 
-void ConfigGadgetWidget::onPipxtremeDisconnect() {
-	qDebug()<<"ConfigGadgetWidget onPipxtremeDisconnect";
-	pipxTimeout->stop();
-	ftw->removeTab(ConfigGadgetWidget::pipxtreme);
-	pipxConnected = false;
+void ConfigGadgetWidget::onOPLinkDisconnect() {
+	qDebug()<<"ConfigGadgetWidget onOPLinkDisconnect";
+	oplinkTimeout->stop();
+	ftw->removeTab(ConfigGadgetWidget::oplink);
+	oplinkConnected = false;
 }

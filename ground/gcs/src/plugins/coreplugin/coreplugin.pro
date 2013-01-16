@@ -6,7 +6,7 @@ QT += xml \
     script \
     svg \
     sql
-include(../../openpilotgcsplugin.pri)
+include(../../abovegroundlabsgcsplugin.pri)
 include(../../libs/utils/utils.pri)
 include(../../shared/scriptwrapper/scriptwrapper.pri)
 include(coreplugin_dependencies.pri)
@@ -66,7 +66,10 @@ SOURCES += mainwindow.cpp \
     telemetrymonitorwidget.cpp \
     dialogs/importsettings.cpp \
     boardmanager.cpp \
-    iboardtype.cpp
+    iboardtype.cpp \
+    idevice.cpp \
+    globalmessaging.cpp \
+    alarmsmonitorwidget.cpp
 HEADERS += mainwindow.h \
     tabpositionindicator.h \
     fancyactionbar.h \
@@ -130,7 +133,10 @@ HEADERS += mainwindow.h \
     telemetrymonitorwidget.h \
     dialogs/importsettings.h \
     boardmanager.h \
-    iboardtype.h
+    iboardtype.h \
+    idevice.h \
+    globalmessaging.h \
+    alarmsmonitorwidget.h
 FORMS += dialogs/settingsdialog.ui \
     dialogs/shortcutsettings.ui \
     generalsettings.ui \
@@ -140,7 +146,7 @@ FORMS += dialogs/settingsdialog.ui \
 RESOURCES += core.qrc \
     fancyactionbar.qrc
 unix:!macx { 
-    images.files = images/openpilot_logo_*.png
+    images.files = images/abovegroundlabs_logo_*.png
     images.files = images/qtcreator_logo_*.png
     images.path = /share/pixmaps
     INSTALLS += images

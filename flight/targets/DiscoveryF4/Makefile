@@ -120,6 +120,7 @@ SRC += $(UAVOBJSRC)
 
 # List any extra directories to look for include files here.
 #    Each directory must be seperated by a space.
+EXTRAINCDIRS += $(SHAREDAPIDIR)
 EXTRAINCDIRS += $(PIOS)
 EXTRAINCDIRS += $(PIOSINC)
 EXTRAINCDIRS += $(OPSYSTEMINC)
@@ -240,7 +241,7 @@ CFLAGS += -fpromote-loop-indices
 endif
 
 CFLAGS += -Wall
-#CFLAGS += -Werror
+CFLAGS += -Werror
 CFLAGS += -Wa,-adhlns=$(addprefix $(OUTDIR)/, $(notdir $(addsuffix .lst, $(basename $<))))
 # Compiler flags to generate dependency files:
 CFLAGS += -MD -MP -MF $(OUTDIR)/dep/$(@F).d
@@ -265,6 +266,8 @@ LDFLAGS = -nostartfiles -Wl,-Map=$(OUTDIR)/$(TARGET).map,--cref,--gc-sections
 LDFLAGS += $(patsubst %,-L%,$(EXTRA_LIBDIRS))
 LDFLAGS += $(patsubst %,-l%,$(EXTRA_LIBS))
 LDFLAGS += -lc -lgcc -lm
+LDFLAGS += -Wl,--warn-common
+LDFLAGS += -Wl,--fatal-warnings
 
 #Linker scripts                                                                                                                                                                                                              
 LDFLAGS += $(addprefix -T,$(LINKER_SCRIPTS_APP))

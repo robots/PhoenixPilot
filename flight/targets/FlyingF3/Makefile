@@ -50,19 +50,21 @@ MODULES += Attitude/revolution
 MODULES += Actuator
 MODULES += ManualControl
 MODULES += Stabilization
-#MODULES += Battery
-#MODULES += Altitude/revolution
-MODULES += GPS
-MODULES += FirmwareIAP
 #MODULES += Airspeed/revolution
-#MODULES += AltitudeHold VtolPathFollower PathPlanner TxPID
-#MODULES += FixedWingPathFollower
-MODULES += Autotune
-MODULES += CameraStab
-#MODULES += OveroSync
-#MODULES += Radio
+MODULES += FirmwareIAP
 MODULES += Telemetry
+#MODULES += PathPlanner
 
+OPTMODULES += GPS
+OPTMODULES += CameraStab
+OPTMODULES += Autotune
+OPTMODULES += TxPID
+OPTMODULES += GenericI2CSensor
+#OPTMODULES += AltitudeHold 
+#OPTMODULES += VtolPathFollower 
+#OPTMODULES += FixedWingPathFollower
+#OPTMODULES += Battery
+#OPTMODULES += ComUsbBridge
 
 # Paths
 OPSYSTEM = ./System
@@ -99,7 +101,7 @@ include $(PIOSCOMMONLIB)/msheap/library.mk
 # use file-extension c for "c-only"-files
 
 ## MODULES
-SRC += ${foreach MOD, ${MODULES}, ${wildcard ${OPMODULEDIR}/${MOD}/*.c}}
+SRC += ${foreach MOD, ${MODULES} ${OPTMODULES}, ${wildcard ${OPMODULEDIR}/${MOD}/*.c}}
 ## OPENPILOT CORE:
 SRC += ${OPMODULEDIR}/System/systemmod.c
 SRC += $(OPSYSTEM)/flyingf3.c
@@ -136,11 +138,11 @@ SRC += $(PIOSCOMMON)/pios_crc.c
 SRC += $(PIOSCOMMON)/pios_com.c
 SRC += $(PIOSCOMMON)/pios_rcvr.c
 SRC += $(PIOSCOMMON)/pios_sbus.c
+SRC += $(PIOSCOMMON)/pios_sensors.c
 SRC += $(PIOSCOMMON)/pios_gcsrcvr.c
 SRC += $(PIOSCOMMON)/pios_flashfs_logfs.c
 SRC += $(PIOSCOMMON)/printf-stdarg.c
 SRC += $(PIOSCOMMON)/pios_usb_desc_hid_cdc.c
-SRC += $(PIOSCOMMON)/pios_usb_desc_hid_only.c
 SRC += $(PIOSCOMMON)/pios_usb_util.c
 
 include ./UAVObjects.inc
@@ -152,6 +154,7 @@ CPPSRC =
 
 # List any extra directories to look for include files here.
 #    Each directory must be seperated by a space.
+EXTRAINCDIRS += $(SHAREDAPIDIR)
 EXTRAINCDIRS += $(PIOS)
 EXTRAINCDIRS += $(PIOSINC)
 EXTRAINCDIRS += $(OPSYSTEMINC)
@@ -172,7 +175,7 @@ EXTRAINCDIRS += $(BOOTINC)
 EXTRAINCDIRS += $(HWDEFSINC)
 EXTRAINCDIRS += $(DEBUG_CM3_DIR_INC)
 
-EXTRAINCDIRS += ${foreach MOD, ${MODULES}, $(OPMODULEDIR)/${MOD}/inc} ${OPMODULEDIR}/System/inc
+EXTRAINCDIRS += ${foreach MOD, ${MODULES} ${OPTMODULES}, $(OPMODULEDIR)/${MOD}/inc} ${OPMODULEDIR}/System/inc
 
 # List any extra directories to look for library files here.
 # Also add directories where the linker should search for
@@ -275,7 +278,7 @@ CFLAGS += -fpromote-loop-indices
 endif
 
 CFLAGS += -Wall
-#CFLAGS += -Werror
+CFLAGS += -Werror
 CFLAGS += -Wa,-adhlns=$(addprefix $(OUTDIR)/, $(notdir $(addsuffix .lst, $(basename $<))))
 # Compiler flags to generate dependency files:
 CFLAGS += -MD -MP -MF $(OUTDIR)/dep/$(@F).d
@@ -300,6 +303,8 @@ LDFLAGS = -nostartfiles -Wl,-Map=$(OUTDIR)/$(TARGET).map,--cref,--gc-sections
 LDFLAGS += $(patsubst %,-L%,$(EXTRA_LIBDIRS))
 LDFLAGS += $(patsubst %,-l%,$(EXTRA_LIBS))
 LDFLAGS += -lc -lgcc -lm
+LDFLAGS += -Wl,--warn-common
+LDFLAGS += -Wl,--fatal-warnings
 
 #Linker scripts                                                                                                                                                                                                              
 LDFLAGS += $(addprefix -T,$(LINKER_SCRIPTS_APP))

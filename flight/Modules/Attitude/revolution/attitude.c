@@ -161,15 +161,10 @@ int32_t AttitudeStart(void)
 	// Create the queues for the sensors
 	gyroQueue = xQueueCreate(1, sizeof(UAVObjEvent));
 	accelQueue = xQueueCreate(1, sizeof(UAVObjEvent));
-	magQueue = xQueueCreate(1, sizeof(UAVObjEvent));
+	magQueue = xQueueCreate(2, sizeof(UAVObjEvent));
 	baroQueue = xQueueCreate(1, sizeof(UAVObjEvent));
 	gpsQueue = xQueueCreate(1, sizeof(UAVObjEvent));
 	gpsVelQueue = xQueueCreate(1, sizeof(UAVObjEvent));
-
-	// Start main task
-	xTaskCreate(AttitudeTask, (signed char *)"Attitude", STACK_SIZE_BYTES/4, NULL, TASK_PRIORITY, &attitudeTaskHandle);
-	TaskMonitorAdd(TASKINFO_RUNNING_ATTITUDE, attitudeTaskHandle);
-	PIOS_WDG_RegisterFlag(PIOS_WDG_ATTITUDE);
 
 	// Initialize quaternion
 	AttitudeActualData attitude;
@@ -198,6 +193,11 @@ int32_t AttitudeStart(void)
 		GPSPositionConnectQueue(gpsQueue);
 	if (GPSVelocityHandle())
 		GPSVelocityConnectQueue(gpsVelQueue);
+
+	// Start main task
+	xTaskCreate(AttitudeTask, (signed char *)"Attitude", STACK_SIZE_BYTES/4, NULL, TASK_PRIORITY, &attitudeTaskHandle);
+	TaskMonitorAdd(TASKINFO_RUNNING_ATTITUDE, attitudeTaskHandle);
+	PIOS_WDG_RegisterFlag(PIOS_WDG_ATTITUDE);
 
 	return 0;
 }
@@ -292,7 +292,7 @@ static int32_t updateAttitudeComplementary(bool first_run)
 	FlightStatusData flightStatus;
 	FlightStatusGet(&flightStatus);
 	if(first_run) {
-#if defined(PIOS_INCLUDE_HMC5883)
+#if defined(PIOS_INCLUDE_HMC5883) || defined(PIOS_INCLUDE_LSM303)
 		// To initialize we need a valid mag reading
 		if ( xQueueReceive(magQueue, &ev, 0 / portTICK_RATE_MS) != pdTRUE )
 			return -1;
@@ -335,7 +335,7 @@ static int32_t updateAttitudeComplementary(bool first_run)
 	} else if (init == 0) {
 		// Reload settings (all the rates)
 		AttitudeSettingsGet(&attitudeSettings);
-		magKp = 0.01f;
+		magKp = attitudeSettings.MagKp;
 		init = 1;
 	}
 
@@ -401,7 +401,8 @@ static int32_t updateAttitudeComplementary(bool first_run)
 		MagnetometerGet(&mag);
 
 		// If the mag is producing bad data don't use it (normally bad calibration)
-		if  (mag.x == mag.x && mag.y == mag.y && mag.z == mag.z) {
+		if  (mag.x == mag.x && mag.y == mag.y && mag.z == mag.z &&
+			 homeLocation.Set == HOMELOCATION_SET_TRUE) {
 			rot_mult(Rbe, homeLocation.Be, brot, false);
 
 			float mag_len = sqrtf(mag.x * mag.x + mag.y * mag.y + mag.z * mag.z);
@@ -526,7 +527,6 @@ static int32_t updateAttitudeComplementary(bool first_run)
 
 #include "insgps.h"
 int32_t ins_failed = 0;
-extern struct NavStruct Nav;
 int32_t init_stage = 0;
 
 /**
@@ -545,6 +545,10 @@ static int32_t updateAttitudeINSGPS(bool first_run, bool outdoor_mode)
 	GPSPositionData gpsData;
 	GPSVelocityData gpsVelData;
 	GyrosBiasData gyrosBias;
+
+	struct NavStruct *Nav = INSGPSGetNav();
+	if (Nav == NULL)
+		return -1;
 
 	static bool mag_updated = false;
 	static bool baro_updated;
@@ -722,10 +726,10 @@ static int32_t updateAttitudeINSGPS(bool first_run, bool outdoor_mode)
 			
 			AttitudeActualData attitude;
 			AttitudeActualGet(&attitude);
-			attitude.q1 = Nav.q[0];
-			attitude.q2 = Nav.q[1];
-			attitude.q3 = Nav.q[2];
-			attitude.q4 = Nav.q[3];
+			attitude.q1 = Nav->q[0];
+			attitude.q2 = Nav->q[1];
+			attitude.q3 = Nav->q[2];
+			attitude.q4 = Nav->q[3];
 			Quaternion2RPY(&attitude.q1,&attitude.Roll);
 			AttitudeActualSet(&attitude);
 		}
@@ -774,10 +778,10 @@ static int32_t updateAttitudeINSGPS(bool first_run, bool outdoor_mode)
 	// Copy the attitude into the UAVO
 	AttitudeActualData attitude;
 	AttitudeActualGet(&attitude);
-	attitude.q1 = Nav.q[0];
-	attitude.q2 = Nav.q[1];
-	attitude.q3 = Nav.q[2];
-	attitude.q4 = Nav.q[3];
+	attitude.q1 = Nav->q[0];
+	attitude.q2 = Nav->q[1];
+	attitude.q3 = Nav->q[2];
+	attitude.q4 = Nav->q[3];
 	Quaternion2RPY(&attitude.q1,&attitude.Roll);
 	AttitudeActualSet(&attitude);
 
@@ -846,25 +850,25 @@ static int32_t updateAttitudeINSGPS(bool first_run, bool outdoor_mode)
 	// Copy the position and velocity into the UAVO
 	PositionActualData positionActual;
 	PositionActualGet(&positionActual);
-	positionActual.North = Nav.Pos[0];
-	positionActual.East = Nav.Pos[1];
-	positionActual.Down = Nav.Pos[2];
+	positionActual.North = Nav->Pos[0];
+	positionActual.East = Nav->Pos[1];
+	positionActual.Down = Nav->Pos[2];
 	PositionActualSet(&positionActual);
 	
 	VelocityActualData velocityActual;
 	VelocityActualGet(&velocityActual);
-	velocityActual.North = Nav.Vel[0];
-	velocityActual.East = Nav.Vel[1];
-	velocityActual.Down = Nav.Vel[2];
+	velocityActual.North = Nav->Vel[0];
+	velocityActual.East = Nav->Vel[1];
+	velocityActual.Down = Nav->Vel[2];
 	VelocityActualSet(&velocityActual);
 
 	if (attitudeSettings.BiasCorrectGyro == ATTITUDESETTINGS_BIASCORRECTGYRO_TRUE && !gyroBiasSettingsUpdated) {
 		// Copy the gyro bias into the UAVO except when it was updated
 		// from the settings during the calculation, then consume it
 		// next cycle
-		gyrosBias.x = Nav.gyro_bias[0] * 180.0f / F_PI;
-		gyrosBias.y = Nav.gyro_bias[1] * 180.0f / F_PI;
-		gyrosBias.z = Nav.gyro_bias[2] * 180.0f / F_PI;
+		gyrosBias.x = Nav->gyro_bias[0] * 180.0f / F_PI;
+		gyrosBias.y = Nav->gyro_bias[1] * 180.0f / F_PI;
+		gyrosBias.z = Nav->gyro_bias[2] * 180.0f / F_PI;
 		GyrosBiasSet(&gyrosBias);
 	}
 
