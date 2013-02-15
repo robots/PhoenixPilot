@@ -281,18 +281,8 @@ static const struct pios_spi_cfg pios_spi_external_cfg = {
 		},
 		.pin_source = GPIO_PinSource5,
 	},
-	.slave_count = 5,
+	.slave_count = 4,
 	.ssel = {
-		{
-			.gpio = GPIOA,
-			.init = {
-				.GPIO_Pin = GPIO_Pin_15,
-				.GPIO_Speed = GPIO_Speed_50MHz,
-				.GPIO_Mode  = GPIO_Mode_OUT,
-				.GPIO_OType = GPIO_OType_PP,
-				.GPIO_PuPd = GPIO_PuPd_UP
-			},
-		},
 		{
 			.gpio = GPIOB,
 			.init = {
@@ -452,24 +442,24 @@ static const struct pios_i2c_adapter_cfg pios_i2c_external_cfg = {
   .scl = {
     .gpio = GPIOF,
     .init = {
-			.GPIO_Pin = GPIO_Pin_6,
+			.GPIO_Pin = GPIO_Pin_0,
             .GPIO_Mode  = GPIO_Mode_AF,
             .GPIO_Speed = GPIO_Speed_50MHz,
             .GPIO_OType = GPIO_OType_PP,
             .GPIO_PuPd  = GPIO_PuPd_NOPULL,
     },
-	.pin_source = GPIO_PinSource6,
+	.pin_source = GPIO_PinSource0,
   },
   .sda = {
     .gpio = GPIOA,
     .init = {
-			.GPIO_Pin = GPIO_Pin_10,
+			.GPIO_Pin = GPIO_Pin_1,
             .GPIO_Mode  = GPIO_Mode_AF,
             .GPIO_Speed = GPIO_Speed_50MHz,
             .GPIO_OType = GPIO_OType_PP,
             .GPIO_PuPd  = GPIO_PuPd_NOPULL,
     },
-	.pin_source = GPIO_PinSource10,
+	.pin_source = GPIO_PinSource1,
   },
   .event = {
     .flags   = 0,		/* FIXME: check this */
@@ -560,17 +550,17 @@ static const struct pios_usart_cfg pios_usart1_dsm_cfg = {
 			.NVIC_IRQChannelCmd = ENABLE,
 		},
 	},
-	.rxtx_swap = true,
+//	.rxtx_swap = true,
 	.rx = {
-		.gpio = GPIOA,
+		.gpio = GPIOC,
 		.init = {
-			.GPIO_Pin   = GPIO_Pin_9,
+			.GPIO_Pin   = GPIO_Pin_5,
 			.GPIO_Speed = GPIO_Speed_2MHz,
 			.GPIO_Mode  = GPIO_Mode_AF,
 			.GPIO_OType = GPIO_OType_PP,
 			.GPIO_PuPd  = GPIO_PuPd_UP
 		},
-		.pin_source = GPIO_PinSource9,
+		.pin_source = GPIO_PinSource5,
 	},
 };
 
@@ -607,15 +597,15 @@ static const struct pios_usart_cfg pios_usart2_dsm_cfg = {
 		},
 	},
 	.rx = {
-		.gpio = GPIOD,
+		.gpio = GPIOA,
 		.init = {
-			.GPIO_Pin   = GPIO_Pin_14,
+			.GPIO_Pin   = GPIO_Pin_15,
 			.GPIO_Speed = GPIO_Speed_2MHz,
 			.GPIO_Mode  = GPIO_Mode_AF,
 			.GPIO_OType = GPIO_OType_PP,
 			.GPIO_PuPd  = GPIO_PuPd_UP
 		},
-		.pin_source = GPIO_PinSource6,
+		.pin_source = GPIO_PinSource15,
 	},
 };
 
@@ -796,17 +786,17 @@ static const struct pios_usart_cfg pios_usart1_sbus_cfg = {
 			.NVIC_IRQChannelCmd                = ENABLE,
 		  },
 	},
-	.rxtx_swap = true,
+//	.rxtx_swap = true,
 	.rx = {
-		.gpio = GPIOA,
+		.gpio = GPIOC,
 		.init = {
-			.GPIO_Pin   = GPIO_Pin_9,
+			.GPIO_Pin   = GPIO_Pin_5,
 			.GPIO_Speed = GPIO_Speed_2MHz,
 			.GPIO_Mode  = GPIO_Mode_AF,
 			.GPIO_OType = GPIO_OType_PP,
 			.GPIO_PuPd  = GPIO_PuPd_UP
 		},
-		.pin_source = GPIO_PinSource9,
+		.pin_source = GPIO_PinSource5,
 	},
 };
 
@@ -836,15 +826,15 @@ static const struct pios_usart_cfg pios_usart2_sbus_cfg = {
 		  },
 	},
 	.rx = {
-		.gpio = GPIOD,
+		.gpio = GPIOA,
 		.init = {
-			.GPIO_Pin   = GPIO_Pin_14,
+			.GPIO_Pin   = GPIO_Pin_15,
 			.GPIO_Speed = GPIO_Speed_2MHz,
 			.GPIO_Mode  = GPIO_Mode_AF,
 			.GPIO_OType = GPIO_OType_PP,
 			.GPIO_PuPd  = GPIO_PuPd_UP
 		},
-		.pin_source = GPIO_PinSource6,
+		.pin_source = GPIO_PinSource15,
 	},
 };
 
@@ -987,17 +977,17 @@ static const struct pios_usart_cfg pios_usart1_cfg = {
 			.NVIC_IRQChannelCmd = ENABLE,
 		},
 	},
-	.rxtx_swap = true,
+//	.rxtx_swap = true,
 	.rx = {
-		.gpio = GPIOA,
+		.gpio = GPIOC,
 		.init = {
-			.GPIO_Pin   = GPIO_Pin_9,
+			.GPIO_Pin   = GPIO_Pin_4,
 			.GPIO_Speed = GPIO_Speed_2MHz,
 			.GPIO_Mode  = GPIO_Mode_AF,
 			.GPIO_OType = GPIO_OType_PP,
 			.GPIO_PuPd  = GPIO_PuPd_UP
 		},
-		.pin_source = GPIO_PinSource9,
+		.pin_source = GPIO_PinSource4,
 	},
 	.tx = {
 		.gpio = GPIOC,
@@ -1032,18 +1022,18 @@ static const struct pios_usart_cfg pios_usart2_cfg = {
 		},
 	},
 	.rx = {
-		.gpio = GPIOD,
+		.gpio = GPIOA,
 		.init = {
-			.GPIO_Pin   = GPIO_Pin_14,
+			.GPIO_Pin   = GPIO_Pin_15,
 			.GPIO_Speed = GPIO_Speed_2MHz,
 			.GPIO_Mode  = GPIO_Mode_AF,
 			.GPIO_OType = GPIO_OType_PP,
 			.GPIO_PuPd  = GPIO_PuPd_UP
 		},
-		.pin_source = GPIO_PinSource6,
+		.pin_source = GPIO_PinSource15,
 	},
 	.tx = {
-		.gpio = GPIOD,
+		.gpio = GPIOA,
 		.init = {
 			.GPIO_Pin   = GPIO_Pin_14,
 			.GPIO_Speed = GPIO_Speed_2MHz,
@@ -1051,7 +1041,7 @@ static const struct pios_usart_cfg pios_usart2_cfg = {
 			.GPIO_OType = GPIO_OType_PP,
 			.GPIO_PuPd  = GPIO_PuPd_UP
 		},
-		.pin_source = GPIO_PinSource5,
+		.pin_source = GPIO_PinSource14,
 	},
 };
 
@@ -1548,7 +1538,7 @@ static const struct pios_tim_channel pios_tim_servoport_all_pins[] = {
 	7:  TIM1_CH3  (PA10)
 	8:  TIM15_CH1 (PB14)
 	9:  TIM15_CH2 (PB15)
-	10: TIM17_CH1 (PB5)
+	10: TIM17_CH1 (PE5)
 	11:  TIM4_CH2 (PD13) (IN2) 
 	12:  TIM4_CH3 (PD14) (IN3)
 	13:  TIM4_CH4 (PD15) (IN4)
@@ -1708,9 +1698,9 @@ static const struct pios_tim_channel pios_tim_servoport_rcvrport_pins[] = {
 	{
 		.timer = TIM17,
 		.timer_chan = TIM_Channel_1,
-		.remap = GPIO_AF_10,
+		.remap = GPIO_AF_4,
 		.pin = {
-			.gpio = GPIOB,
+			.gpio = GPIOE,
 			.init = {
 				.GPIO_Pin = GPIO_Pin_5,
 				.GPIO_Speed = GPIO_Speed_2MHz,
