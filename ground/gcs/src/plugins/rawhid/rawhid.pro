@@ -1,6 +1,6 @@
 TEMPLATE = lib
 TARGET = RawHID
-include(../../abovegroundlabsgcsplugin.pri)
+include(../../taulabsgcsplugin.pri)
 include(rawhid_dependencies.pri)
 HEADERS += rawhid_global.h \
     rawhidplugin.h \
@@ -35,10 +35,10 @@ macx {
 linux-g++ {
     SOURCES += pjrc_rawhid_unix.cpp \
             usbmonitor_linux.cpp
-    LIBS += -lusb -ludev
+    LIBS += -lusb-1.0 -ludev
 }
 linux-g++-64 {
     SOURCES += pjrc_rawhid_unix.cpp \
             usbmonitor_linux.cpp
-    LIBS += -lusb -ludev
+    LIBS += -lusb-1.0 -ludev
 }

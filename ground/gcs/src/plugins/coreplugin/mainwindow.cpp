@@ -2,7 +2,7 @@
  ******************************************************************************
  *
  * @file       mainwindow.cpp
- * @author     Above Ground Labs, http://abovegroundlabs.org Copyright (C) 2012
+ * @author     Tau Labs, http://taulabs.org Copyright (C) 2012
  * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2010.
  *             Parts by Nokia Corporation (qt-info@nokia.com) Copyright (C) 2009.
  * @addtogroup GCSPlugins GCS Plugins
@@ -40,7 +40,6 @@
 #include "messagemanager.h"
 #include "modemanager.h"
 #include "mimedatabase.h"
-#include "outputpane.h"
 #include "plugindialog.h"
 #include "qxtlogger.h"
 #include "qxtbasicstdloggerengine.h"
@@ -104,11 +103,11 @@ MainWindow::MainWindow() :
     m_additionalContexts(m_globalContext),
     // keep this in sync with main() in app/main.cpp
     m_settings(new QSettings(XmlConfig::XmlSettingsFormat, QSettings::UserScope,
-                             QLatin1String("AboveGroundLabs"), QLatin1String("AboveGroundLabs_config"), this)),
+                             QLatin1String("TauLabs"), QLatin1String("TauLabs_config"), this)),
     m_globalSettings(new QSettings(XmlConfig::XmlSettingsFormat, QSettings::SystemScope,
-                                 QLatin1String("AboveGroundLabs"), QLatin1String("AboveGroundLabs_config"), this)),
+                                 QLatin1String("TauLabs"), QLatin1String("TauLabs_config"), this)),
     m_settingsDatabase(new SettingsDatabase(QFileInfo(m_settings->fileName()).path(),
-                                            QLatin1String("AboveGroundLabs_config"),
+                                            QLatin1String("TauLabs_config"),
                                             this)),
     m_dontSaveSettings(false),
     m_actionManager(new ActionManagerPrivate(this)),
@@ -137,14 +136,14 @@ MainWindow::MainWindow() :
 #endif
     m_toggleFullScreenAction(0)
 {
-    setWindowTitle(tr("Above Ground Labs GCS"));
+    setWindowTitle(tr("Tau Labs GCS"));
 #ifndef Q_WS_MAC
-    qApp->setWindowIcon(QIcon(":/core/images/openpilot_logo_128.png"));
+    qApp->setWindowIcon(QIcon(":/core/images/taulabs_logo_128.png"));
 #endif
-    QCoreApplication::setApplicationName(QLatin1String("Above Ground Labs GCS"));
+    QCoreApplication::setApplicationName(QLatin1String("Tau Labs GCS"));
     QCoreApplication::setApplicationVersion(QLatin1String(Core::Constants::GCS_VERSION_LONG));
-    QCoreApplication::setOrganizationName(QLatin1String("AboveGroundLabs"));
-    QCoreApplication::setOrganizationDomain(QLatin1String("abovegroundlabs.org"));
+    QCoreApplication::setOrganizationName(QLatin1String("TauLabs"));
+    QCoreApplication::setOrganizationDomain(QLatin1String("taulabs.org"));
     QSettings::setDefaultFormat(XmlConfig::XmlSettingsFormat);
     QString baseName = qApp->style()->objectName();
 #ifdef Q_WS_X11
@@ -298,7 +297,7 @@ void MainWindow::extensionsInitialized()
 #else
             directory.cdUp();
             directory.cd("share");
-            directory.cd("abovegroundlabs");
+            directory.cd("taulabs");
 #endif
             directory.cd("default_configurations");
 
@@ -355,7 +354,7 @@ void MainWindow::loadStyleSheet(QString name) {
 #else
     directory.cdUp();
     directory.cd("share");
-    directory.cd("abovegroundlabs");
+    directory.cd("taulabs");
 #endif
     directory.cd("stylesheets");
 #ifdef Q_OS_MAC
@@ -822,17 +821,17 @@ void MainWindow::registerDefaultActions()
 
     // About GCS Action
 #ifdef Q_WS_MAC
-    tmpaction = new QAction(QIcon(Constants::ICON_OPENPILOT), tr("About &Above Ground Labs GCS"), this); // it's convention not to add dots to the about menu
+    tmpaction = new QAction(QIcon(Constants::ICON_TAULABS), tr("About &Tau Labs GCS"), this); // it's convention not to add dots to the about menu
 #else
-    tmpaction = new QAction(QIcon(Constants::ICON_OPENPILOT), tr("About &Above Ground Labs GCS..."), this);
+    tmpaction = new QAction(QIcon(Constants::ICON_TAULABS), tr("About &Tau Labs GCS..."), this);
 #endif
-    cmd = am->registerAction(tmpaction, Constants::ABOUT_OPENPILOTGCS, m_globalContext);
+    cmd = am->registerAction(tmpaction, Constants::ABOUT_TAULABSGCS, m_globalContext);
     mhelp->addAction(cmd, Constants::G_HELP_ABOUT);
     tmpaction->setEnabled(true);
 #ifdef Q_WS_MAC
     cmd->action()->setMenuRole(QAction::ApplicationSpecificRole);
 #endif
-    connect(tmpaction, SIGNAL(triggered()), this,  SLOT(aboutOpenPilotGCS()));
+    connect(tmpaction, SIGNAL(triggered()), this,  SLOT(aboutTauLabsGCS()));
 
     //Credits Action
     tmpaction = new QAction(QIcon(Constants::ICON_PLUGIN), tr("About &Authors..."), this);
@@ -842,7 +841,7 @@ void MainWindow::registerDefaultActions()
 #ifdef Q_WS_MAC
     cmd->action()->setMenuRole(QAction::ApplicationSpecificRole);
 #endif
-    connect(tmpaction, SIGNAL(triggered()), this,  SLOT(aboutOpenPilotAuthors()));
+    connect(tmpaction, SIGNAL(triggered()), this,  SLOT(aboutTauLabsAuthors()));
 
 
 }
@@ -912,7 +911,7 @@ void MainWindow::saveAll()
     if ( m_dontSaveSettings) return;
 
     emit m_coreImpl->saveSettingsRequested();
-    saveSettings(); // OpenPilot-specific.
+    saveSettings(); // TauLabs-specific.
 }
 
 void MainWindow::exit()
@@ -1422,7 +1421,7 @@ void MainWindow::openRecentFile()
     }
 }
 
-void MainWindow::aboutOpenPilotGCS()
+void MainWindow::aboutTauLabsGCS()
 {
     if (!m_versionDialog) {
         m_versionDialog = new VersionDialog(this);
@@ -1440,7 +1439,7 @@ void MainWindow::destroyVersionDialog()
     }
 }
 
-void MainWindow::aboutOpenPilotAuthors()
+void MainWindow::aboutTauLabsAuthors()
 {
     if (!m_authorsDialog) {
         m_authorsDialog = new AuthorsDialog(this);
